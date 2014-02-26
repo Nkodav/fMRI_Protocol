@@ -29,7 +29,7 @@ items = [item1c item2c item3c item4c item5c item6c item7c item8c item9c item10c 
 
 for i = 1:21;
     v = genvarname(strcat('item', num2str(i)));
-    eval([v '= imread(strcat(''Image'', num2str(items(i)), ''.JPG''));']);
+    eval([v '= imread(strcat(''Image'', num2str(items(i)), ''.jpg''));']);
 end
 
 items = {item1 item2 item3 item4 item5 item6 item7 item8 item9 item10 ...
@@ -57,6 +57,7 @@ numberRuns = 5; %we will be doing 5 unique runs, totalling 270 trials of three d
 cIndex = 1;
 sIndex = 1;
 bIndex = 1;
+Hangover = 0;
 
 w = Screen('OpenWindow', screenNumber,[],[],[],[]);
 
@@ -317,6 +318,17 @@ bundlingIndex2 = 1;
 bundlingIndex3 = 1;
 bundlingIndex4 = 1;
 
+    breakTime = 30; %no break here, but need this for timing purposes for KbWait
+    feedbackTime = 0.25;
+    whenTime = zeros(length(time),1);
+    
+    for k = 1:(length(time))
+        whenTime(k,1) = UT + j*10 + time(k) + (j-1)*(breakTime) + Hangover;
+    end
+    
+    whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k) + (j-1)*(breakTime) + Hangover;
+    
+
 
 while i <= long;
     switch trialOrder(i);
@@ -334,7 +346,7 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             controlIndex1 = controlIndex1  + 1;
-            save(recordname,'settings');
+            
         
         case 3 %is for the CONTROL condition (2nd half: 4 reps)
             itemCode = Ncontrol2Set(controlConditionOrder2(controlIndex2));
@@ -347,7 +359,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             controlIndex2 = controlIndex2  + 1;
-            save(recordname,'settings');
 
         case 4 %is for the SCALING by 2 condition
             itemCode = Nscaling2Set(scalingConditionOrder2(scalingIndex2),1);
@@ -360,7 +371,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             scalingIndex2 = scalingIndex2  + 1;
-            save(recordname,'settings');
         
         case 5 %is for the SCALING by 3 condition
             itemCode = Nscaling3Set(scalingConditionOrder3(scalingIndex3),1);
@@ -373,7 +383,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             scalingIndex3 = scalingIndex3 + 1;
-            save(recordname,'settings');
         
         case 6 %is for the SCALING by 4 condition
             itemCode = Nscaling4Set(scalingConditionOrder4(scalingIndex4),1);
@@ -386,7 +395,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             scalingIndex4 = scalingIndex4  + 1;
-            save(recordname,'settings');
         
         case 7 %is for the BUNDLING by 2 condition
             itemCode1 = Nbundling2Set(bundlingConditionOrder2(bundlingIndex2),1);
@@ -400,7 +408,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             bundlingIndex2 = bundlingIndex2 + 1;
-            save(recordname,'settings');
         
         case 8 %is for the BUNDLING by 3 condition
             itemCode1 = Nbundling3Set(bundlingConditionOrder3(bundlingIndex3),1);
@@ -415,7 +422,6 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             bundlingIndex3 = bundlingIndex3 + 1;
-            save(recordname,'settings');
         
         case 9 %is for the BUNDLING by 4 condition
             itemCode1 = Nbundling4Set(bundlingConditionOrder4(bundlingIndex4),1);
@@ -431,31 +437,21 @@ while i <= long;
             settings.itemLocation(i,1:4) = r;
             settings.cueLocation(i,1:2) = s;
             bundlingIndex4 = bundlingIndex4 + 1;
-            save(recordname,'settings');
     end
     
-    breakTime = 30; %no break here, but need this for timing purposes for KbWait
-    feedbackTime = 0.25;
-    whenTime = zeros(length(time),1);
-    
-    for k = 1:(length(time))
-        whenTime(k,1) = UT + j*10 + time(k) + (j-1)*(breakTime);
-    end
-    
-    whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k) + (j-1)*(breakTime);
-    
+
     [VBLTimestamp StimulusOnsetTime FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
+%    [VBLTimestamp StimulusOnsetTime FlipTimestamp] = Screen('Flip', w);
     settings.VBLTimestamp(i) = VBLTimestamp;
     settings.StimulusOnsetTime(i) = StimulusOnsetTime;
     settings.FlipTimestamp(i) = FlipTimestamp;
     
     if trialOrder(i) == 1  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
         WaitSecs(isi(i))
-    end
     
-    if trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
+    elseif trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
         
-        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(whenTime(i+1,1)-0.5));
+        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(whenTime(i,1)+4));
         if sum(keyCode) == 1;
             if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
                 behavioral.key(i,1) = '1';
@@ -504,10 +500,10 @@ while i <= long;
         end
     end
     
-    save (recordname, 'behavioral', '-append')
-    save(recordname,'settings')
+
     
     i = i + 1;
+    
 end
 
 %% at the end of each run
@@ -516,8 +512,10 @@ drawStop(w);
 Screen('Flip',w);
 breakTime = 30; % we give a 30 second break between runs, during which time a "break" screen is displayed on the screen
 WaitSecs(breakTime);
-
+Hangover = Hangover + isi(length(isi));
 j = j + 1;
+save (recordname, 'behavioral', '-append')
+save(recordname,'settings')
 end % end of a run; repeat until 6 runs complete
 
 %% at the end
