@@ -433,7 +433,7 @@ while i <= long;
             bundlingIndex4 = bundlingIndex4 + 1;
             save(recordname,'settings');
     end
-
+    
     breakTime = 30; %no break here, but need this for timing purposes for KbWait
     whenTime = zeros(length(time),1);
     untilTime = zeros(length(time),1);
@@ -442,73 +442,78 @@ while i <= long;
         whenTime(k,1) = UT + 10 + time(k) + (j-1)*(breakTime);
     end
     
-    for l = 1:(length(time) - 1)
-        untilTime(l,1) = UT + 10 + time(l+1) + (j-1)*(breakTime);
+    for k = 1:(length(time) - 1)
+        untilTime(k,1) = UT + 10 + time(k+1) + (j-1)*(breakTime);
     end
     
     untilTime(length(time),1) = UT + 10 + 324 + (j-1)*(breakTime);
-     
+    
     [VBLTimestamp StimulusOnsetTime FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
     settings.VBLTimestamp(i) = VBLTimestamp;
     settings.StimulusOnsetTime(i) = StimulusOnsetTime;
     settings.FlipTimestamp(i) = FlipTimestamp;
     
-        if trialOrder(i) == 1  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
-            WaitSecs(isi(i))
+    if trialOrder(i) == 1  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
+        WaitSecs(isi(i))
+    end
+    
+    behavioral.keyIsDown(i) = 0;
+    
+    if trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
+ 
+        %this is what we should be using but it doesn't work!
+%         while (GetSecs <= untilTime(i,1) - 0.5) && (behavioral.keyIsDown(i) == 0)
+%             [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbCheck(-1);
+%         end
+        
+        while (GetSecs <= untilTime(i,1) + 100 - 0.5) && (behavioral.keyIsDown(i) == 0)
+            [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbCheck(-1);
         end
         
-        if trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
-            while GetSecs <= (untilTime(i,1) - 0.5);
-                [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbPressWait(-1);
-                if (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
-                    behavioral.key(i,1) = '1';
-                    behavioral.choice(i,1) = 'r';
-                    feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
-                    Screen('Flip',w);
-                    extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                    WaitSecs(0.5 + extraTime(i,1));
-                    save (recordname, 'behavioral', '-append')
-                    save(recordname,'settings');
-                    break
-                elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==1);
-                    behavioral.key(i,1) = '3';
-                    behavioral.choice(i,1) = 'v';
-                    feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
-                    Screen('Flip',w);
-                    extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                    WaitSecs(0.5 + extraTime(i,1));
-                    save (recordname, 'behavioral', '-append')
-                    save(recordname,'settings');
-                    break
-                elseif (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==2);
-                    behavioral.key(i,1) = '1';
-                    behavioral.choice(i,1) = 'v';
-                    feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
-                    Screen('Flip',w);
-                    extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                    WaitSecs(0.5 + extraTime(i,1));
-                    save (recordname, 'behavioral', '-append')
-                    save(recordname,'settings');
-                    break
-                elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==2);
-                    behavioral.key(i,1) = '3';
-                    behavioral.choice(i,1) = 'r';
-                    feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
-                    Screen('Flip',w);
-                    extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                    WaitSecs(0.5 + extraTime(i,1));
-                    save (recordname, 'behavioral', '-append')
-                    save(recordname,'settings');
-                    break
-                elseif sum(keyCode) == 0
-                    break
-                end
+        %[behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,2,(untilTime(i,1)-0.5));
+        if behavioral.keyIsDown(i) == 1
+            if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
+                behavioral.key(i,1) = '1';
+                behavioral.choice(i,1) = 'r';
+                feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
+                Screen('Flip',w);
+                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
+                WaitSecs(0.5 + extraTime(i,1));
+                
+            elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==1);
+                behavioral.key(i,1) = '3';
+                behavioral.choice(i,1) = 'v';
+                feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
+                Screen('Flip',w);
+                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
+                WaitSecs(0.5 + extraTime(i,1));
+                
+            elseif (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==2);
+                behavioral.key(i,1) = '1';
+                behavioral.choice(i,1) = 'v';
+                feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
+                Screen('Flip',w);
+                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
+                WaitSecs(0.5 + extraTime(i,1));
+                
+            elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==2);
+                behavioral.key(i,1) = '3';
+                behavioral.choice(i,1) = 'r';
+                feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
+                Screen('Flip',w);
+                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
+                WaitSecs(0.5 + extraTime(i,1));
             end
+        elseif behavioral.keyIsDown(i) == 0 % or sum(keyCode) == 0
+            behavioral.key(i,1) = '0';
+            behavioral.choice(i,1) = 'n';
         end
-        
-        
-        
-        i = i + 1;
+    end
+    
+    save (recordname, 'behavioral', '-append')
+    save(recordname,'settings')
+    
+    i = i + 1;
 end
 
 %% at the end of each run
@@ -518,7 +523,7 @@ Screen('Flip',w);
 breakTime = 30; % we give a 30 second break between runs, during which time a "break" screen is displayed on the screen
 WaitSecs(breakTime);
 
-j = j + 1; 
+j = j + 1;
 end % end of a run; repeat until 6 runs complete
 
 %% at the end
