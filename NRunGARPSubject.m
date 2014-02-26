@@ -435,18 +435,14 @@ while i <= long;
     end
     
     breakTime = 30; %no break here, but need this for timing purposes for KbWait
+    feedbackTime = 0.25;
     whenTime = zeros(length(time),1);
-    untilTime = zeros(length(time),1);
     
     for k = 1:(length(time))
-        whenTime(k,1) = j*UT + 10 + time(k) + (j-1)*(breakTime);
+        whenTime(k,1) = UT + j*10 + time(k) + (j-1)*(breakTime);
     end
     
-    for k = 1:(length(time) - 1)
-        untilTime(k,1) = UT + j*10 + time(k+1) + (j-1)*(breakTime);
-    end
-    
-    untilTime(length(time),1) = UT + j*10 + 324 + (j-1)*(breakTime);
+    whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k) + (j-1)*(breakTime);
     
     [VBLTimestamp StimulusOnsetTime FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
     settings.VBLTimestamp(i) = VBLTimestamp;
@@ -458,49 +454,49 @@ while i <= long;
     end
     
     if trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
- 
-        %this is what we should be using but it doesn't work!
-%         while (GetSecs <= untilTime(i,1) - 0.5) && (behavioral.keyIsDown(i) == 0)
-%             [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbCheck(-1);
-%         end
         
-%         while (GetSecs <= untilTime(i,1) - 0.5) && (behavioral.keyIsDown(i) == 0)
-%             [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1);
-%         end
-        
-        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(untilTime(i,1)-0.5));
+        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(whenTime(i+1,1)-0.5));
         if sum(keyCode) == 1;
             if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
                 behavioral.key(i,1) = '1';
                 behavioral.choice(i,1) = 'r';
                 feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
                 Screen('Flip',w);
-                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                WaitSecs(0.5 + extraTime(i,1));
-                
+                WaitSecs(feedbackTime);
+                %extraTime(i,1) = whenTime(i+1,1) - behavioral.secs(i) - 3*feedbackTime;
+                drawFixation(w);
+                Screen('Flip',w);
+                %WaitSecs(extraTime(i,1));   
             elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==1);
                 behavioral.key(i,1) = '3';
                 behavioral.choice(i,1) = 'v';
                 feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
                 Screen('Flip',w);
-                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                WaitSecs(0.5 + extraTime(i,1));
-                
+                WaitSecs(feedbackTime);
+                %extraTime(i,1) = whenTime(i+1,1) - behavioral.secs(i) - 3*feedbackTime;
+                drawFixation(w);
+                Screen('Flip',w);
+                %WaitSecs(extraTime(i,1));  
             elseif (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==2);
                 behavioral.key(i,1) = '1';
                 behavioral.choice(i,1) = 'v';
                 feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
                 Screen('Flip',w);
-                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                WaitSecs(0.5 + extraTime(i,1));
-                
+                WaitSecs(feedbackTime);
+                %extraTime(i,1) = whenTime(i+1,1) - behavioral.secs(i) - 3*feedbackTime;
+                drawFixation(w);
+                Screen('Flip',w);
+                %WaitSecs(extraTime(i,1));  
             elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==2);
                 behavioral.key(i,1) = '3';
                 behavioral.choice(i,1) = 'r';
                 feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
                 Screen('Flip',w);
-                extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
-                WaitSecs(0.5 + extraTime(i,1));
+                WaitSecs(feedbackTime);
+                %extraTime(i,1) = whenTime(i+1,1) - behavioral.secs(i) - 3*feedbackTime;
+                drawFixation(w);
+                Screen('Flip',w);
+                %WaitSecs(extraTime(i,1));  
             end
         elseif sum(keyCode) == 0
             behavioral.key(i,1) = '0';
