@@ -439,14 +439,14 @@ while i <= long;
     untilTime = zeros(length(time),1);
     
     for k = 1:(length(time))
-        whenTime(k,1) = UT + 10 + time(k) + (j-1)*(breakTime);
+        whenTime(k,1) = j*UT + 10 + time(k) + (j-1)*(breakTime);
     end
     
     for k = 1:(length(time) - 1)
-        untilTime(k,1) = UT + 10 + time(k+1) + (j-1)*(breakTime);
+        untilTime(k,1) = UT + j*10 + time(k+1) + (j-1)*(breakTime);
     end
     
-    untilTime(length(time),1) = UT + 10 + 324 + (j-1)*(breakTime);
+    untilTime(length(time),1) = UT + j*10 + 324 + (j-1)*(breakTime);
     
     [VBLTimestamp StimulusOnsetTime FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
     settings.VBLTimestamp(i) = VBLTimestamp;
@@ -457,8 +457,6 @@ while i <= long;
         WaitSecs(isi(i))
     end
     
-    behavioral.keyIsDown(i) = 0;
-    
     if trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
  
         %this is what we should be using but it doesn't work!
@@ -466,12 +464,12 @@ while i <= long;
 %             [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbCheck(-1);
 %         end
         
-        while (GetSecs <= untilTime(i,1) + 100 - 0.5) && (behavioral.keyIsDown(i) == 0)
-            [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbCheck(-1);
-        end
+%         while (GetSecs <= untilTime(i,1) - 0.5) && (behavioral.keyIsDown(i) == 0)
+%             [behavioral.keyIsDown(i), behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1);
+%         end
         
-        %[behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,2,(untilTime(i,1)-0.5));
-        if behavioral.keyIsDown(i) == 1
+        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(untilTime(i,1)-0.5));
+        if sum(keyCode) == 1;
             if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
                 behavioral.key(i,1) = '1';
                 behavioral.choice(i,1) = 'r';
@@ -504,7 +502,7 @@ while i <= long;
                 extraTime(i,1) = untilTime(i,1) - behavioral.secs(i);
                 WaitSecs(0.5 + extraTime(i,1));
             end
-        elseif behavioral.keyIsDown(i) == 0 % or sum(keyCode) == 0
+        elseif sum(keyCode) == 0
             behavioral.key(i,1) = '0';
             behavioral.choice(i,1) = 'n';
         end
