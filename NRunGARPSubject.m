@@ -511,7 +511,7 @@ end
 drawStop(w);
 Screen('Flip',w);
 breakTime = 30; % we give a 30 second break between runs, during which time a "break" screen is displayed on the screen
-WaitSecs(breakTime);
+% WaitSecs(breakTime);
 Hangover = Hangover + isi(length(isi));
 j = j + 1;
 save (recordname, 'behavioral', '-append')
