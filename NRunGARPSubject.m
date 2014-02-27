@@ -64,25 +64,17 @@ w = Screen('OpenWindow', screenNumber,[],[],[],[]);
 % Display "Please wait. Do not touch anything"
 drawStart(w);
 Screen('Flip',w);
-%  while input == 'k';
-%     [settings.startTime, keyCode, ~] = KbWait(-1, 3);
-%     UT = settings.startTime;
-%     if strcmp(KbName(keyCode),'5%');
-%         break
-%     end
-%  end
  
 % James' code for scanner cue 
-     key = 0;
-while key ~= '5'
-    [keyisdown, StartSecs, keycode] = KbCheck();
-    if keyisdown
-        key = KbName(keycode);  
-        UT = StartSecs;
-        sprintf('\nScanner Triggered at %3.3f s\n',StartSecs);
-    end
-end 
-
+%      key = 0;
+% while key ~= '5'
+%     [keyisdown, StartSecs, keycode] = KbCheck();
+%     if keyisdown
+%         key = KbName(keycode);  
+%     end
+% end 
+UT = GetSecs;
+%sprintf('\nScanner Triggered at %3.3f s\n',StartSecs);
 j = 1;
 while j < (numberRuns + 1);
 %%
@@ -328,7 +320,7 @@ bundlingIndex4 = 1;
     
     whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k) + (j-1)*(breakTime) + Hangover;
     
-
+RestrictKeysForKbCheck([30, 32, 32, 33]);
 
 while i <= long;
     switch trialOrder(i);
@@ -452,7 +444,6 @@ while i <= long;
     elseif trialOrder(i) > 1 % for all conditions except for the NULL, keep display on screen until subject presses button or 4 seconds is up (whichever happens first) and record button press in the former case
         
         [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(whenTime(i,1)+4));
-        if sum(keyCode) == 1;
             if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
                 behavioral.key(i,1) = '1';
                 behavioral.choice(i,1) = 'r';
@@ -493,10 +484,9 @@ while i <= long;
                 drawFixation(w);
                 Screen('Flip',w);
                 %WaitSecs(extraTime(i,1));  
-            end
-        elseif sum(keyCode) == 0
-            behavioral.key(i,1) = '0';
-            behavioral.choice(i,1) = 'n';
+            else
+                behavioral.key(i,1) = '0';
+                behavioral.choice(i,1) = 'n';
         end
     end
     
