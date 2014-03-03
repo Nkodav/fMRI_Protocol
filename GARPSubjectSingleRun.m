@@ -370,7 +370,7 @@ while i <= long;
             settings.cueLocation(i,1:2) = s;
             bundlingIndex4 = bundlingIndex4 + 1;
     end
-    fprintf(fileID,'%d\t%d\t','caseNumber','setNumber');
+    fprintf(fileID,'%d\t%d\t',caseNumber,setNumber);
 
     [VBLTimestamp, StimulusOnsetTime, FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
     settings.VBLTimestamp(i) = VBLTimestamp;
@@ -379,7 +379,7 @@ while i <= long;
     
     if trialOrder(i) == 1  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
         WaitSecs(isi(i))
-    
+        behavioral.secs(i) = whenTime(i,1)+isi(i);
     elseif trialOrder(i) > 1 % for all conditions except for the NULL, 
                              % keep display on screen until subject presses
                              % button or 4 seconds is up (whichever happens 
@@ -416,12 +416,12 @@ while i <= long;
         else
             drawFixation(w);
             Screen('Flip',w);
-            behavioral.key(i,1) = '0';
+            behavioral.key(i,1) = 0;
             behavioral.choice(i,1) = 'n';
         end
-        fprintf(fileID,'%f\t%f\n','StimulusOnsetTime','behavioral.secs(i)');
+        
     end
-    
+    fprintf(fileID,'%f\t%f\n',StimulusOnsetTime,behavioral.secs(i));
     
     
     i = i + 1;
