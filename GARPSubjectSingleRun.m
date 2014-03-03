@@ -195,6 +195,7 @@ settings.scalingConditionOrder4 = scalingConditionOrder4;
 settings.bundlingConditionOrder2 = bundlingConditionOrder2;
 settings.bundlingConditionOrder3 = bundlingConditionOrder3;
 settings.bundlingConditionOrder4 = bundlingConditionOrder4;
+settings.UT = UT;
 settings.controlSet = Ncontrol1Set;
 settings.control2Set = Ncontrol2Set;
 settings.scaling2Set = Nscaling2Set;
@@ -237,7 +238,7 @@ feedbackTime = 0.25;
 
 whenTime = zeros(length(time),1);
 for k = 1:(length(time))
-    whenTime(k,1) = UT + j*10 + time(k);
+    whenTime(k,1) = UT + 10 + time(k);
 end
 
 % whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k);
@@ -435,4 +436,5 @@ save (recordname, 'settings');
 save (recordname, 'behavioral', '-append');
 fclose(fileID);
 Screen('CloseAll');
+clear all;
 end
