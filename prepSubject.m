@@ -1,4 +1,4 @@
-function [ output_args ] = prepSubject( subjID, j, item1c, item2c, item3c,...
+function [ output_args ] = prepSubject( subjID, item1c, item2c, item3c,...
     item4c, item5c, item6c, item7c, item8c, item9c, item10c, item11c, item12c, ...
     item13c, item14c, item15c, item16c, item17c, item18c, item19c, item20c, ...
     item21c,input)
@@ -11,6 +11,8 @@ function [ output_args ] = prepSubject( subjID, j, item1c, item2c, item3c,...
 % item16c = 16; item17c= 17; item18c = 18;
 % item19c = 19; item20c = 20; item21c = 21;
 %% Settings
+runs = 5;
+trialsPerRun = 72; %Including Nulls
 % Default for subjID is 1. This only kicks in iff no subject ID is given.
 if exist('subjID','var') == 0;
     subjID = 1;
@@ -50,7 +52,6 @@ load('Nbundling4Set.mat');
 cIndex = 1;
 sIndex = 1;
 bIndex = 1;
-% Hangover = 0;
 
 
 %%
@@ -127,12 +128,39 @@ while i < 4;
     bundlingConditionOrder4 = cat(2,bundlingConditionOrder4,randperm(length(Nbundling4Set)));
     i = i + 1;
 end
+longCondition = [];
+for j = 1:5
+    load(strcat('Run',num2str(j),'.mat'));
+    longCondition = cat(1,longCondition,condition);
+end
+
+
+trialOrder = zeros(1,length(longCondition));
+
+for i = 1:length(trialOrder);
+    if longCondition(i) == 0
+            trialOrder(i) = 1;
+    end
+    if longCondition(i) == 1
+            trialOrder(i) = controlConditionOrder(cIndex);
+            cIndex = cIndex + 1;
+    end
+    if longCondition(i) == 2
+            trialOrder(i) = scalingConditionOrder(sIndex);
+            sIndex = sIndex + 1;
+    end
+    if longCondition(i) == 3
+            trialOrder(i) = bundlingConditionOrder(bIndex);
+            bIndex = bIndex + 1;
+    end
+end
 
 %% Saving the settings
 
 % these are the same across all runs, so no need to save them under that run's name in the settings file
 settings.recordfolder = 'records';
 settings.subjID = subjID;
+settings.allItems = items;
 settings.items.item1 = items{1}; settings.items.item2 = items{2};
 settings.items.item3 = items{3}; settings.items.item4 = items{4};
 settings.items.item5 = items{5}; settings.items.item6 = items{6};
@@ -152,7 +180,6 @@ settings.scalingConditionOrder4 = scalingConditionOrder4;
 settings.bundlingConditionOrder2 = bundlingConditionOrder2;
 settings.bundlingConditionOrder3 = bundlingConditionOrder3;
 settings.bundlingConditionOrder4 = bundlingConditionOrder4;
-settings.UT = UT;
 settings.controlSet = Ncontrol1Set;
 settings.control2Set = Ncontrol2Set;
 settings.scaling2Set = Nscaling2Set;
@@ -162,4 +189,8 @@ settings.bundling2Set = Nbundling2Set;
 settings.bundling3Set = Nbundling3Set; 
 settings.bundling4Set = Nbundling4Set;
 settings.trialOrder   = trialOrder;
+
+recordname = [settings.recordfolder '/' num2str(subjID) '_globalSettings' '.mat'];
+% Save the settings (the results are saved later)
+save (recordname, 'settings')
 
