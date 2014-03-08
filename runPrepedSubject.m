@@ -34,10 +34,10 @@ switch j
         trialOrder = settings.trialOrder(185:279);
         settings.trialOrder = trialOrder;
     case 4
-        trialOrder = settings.trialOrder(278:378);
+        trialOrder = settings.trialOrder(280:378);
         settings.trialOrder = trialOrder;
     case 5
-        trialOrder = settings.trialOrder(179:474);
+        trialOrder = settings.trialOrder(379:474);
         settings.trialOrder = trialOrder;
 end
 
@@ -63,7 +63,7 @@ while key ~= '5'
     end
 end 
 UT = GetSecs;
-
+settings.UT = UT;
 % create the file name for this run of this subject
 recordname = [settings.recordfolder '/' num2str(subjID) '_' num2str(j) '_' datestr(now,'yyyymmddTHHMMSS') '.mat'];
 textFileName = [settings.recordfolder '/' num2str(subjID) '_' num2str(j) '_' datestr(now,'yyyymmddTHHMMSS') '.txt'];
